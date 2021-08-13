@@ -15,6 +15,8 @@ class MyApp extends StatelessWidget {
         LoginView.routName: (_) => LoginView(),
         HomeView.routName: (_) => HomeView(),
       },
+      theme:
+          ThemeData.light().copyWith(scaffoldBackgroundColor: Colors.grey[100]),
     );
   }
 }
