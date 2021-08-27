@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:productos_app/src/colors/colors.dart';
+import 'package:productos_app/src/providers/providers.dart';
 import 'package:productos_app/src/widgets/widgets.dart';
 
 class LoginView extends StatelessWidget {
@@ -21,7 +23,10 @@ class LoginView extends StatelessWidget {
                     'Ingreso',
                     style: Theme.of(context).textTheme.headline4,
                   ),
-                  _LoginForm(),
+                  ChangeNotifierProvider(
+                    create: (_) => LoginFormProvider(),
+                    child: _LoginForm(),
+                  ),
                 ],
               ),
             ),
@@ -40,9 +45,12 @@ class LoginView extends StatelessWidget {
 class _LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final loginForm = Provider.of<LoginFormProvider>(context);
+
     return Container(
       child: Form(
         autovalidateMode: AutovalidateMode.onUserInteraction,
+        key: loginForm.formKey,
         child: Column(
           children: [
             TextFormField(
@@ -53,6 +61,7 @@ class _LoginForm extends StatelessWidget {
                 labelText: 'Correo electrónico',
                 prefixIcon: Icons.alternate_email_sharp,
               ),
+              onChanged: (value) => loginForm.correo = value,
               validator: (String? value) {
                 String pattern =
                     r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
@@ -67,12 +76,12 @@ class _LoginForm extends StatelessWidget {
             TextFormField(
               obscureText: true,
               autocorrect: false,
-              keyboardType: TextInputType.emailAddress,
               decoration: InputDecorations.authInputDecoration(
                 hintText: '************',
                 labelText: 'Contraseña',
                 prefixIcon: Icons.password,
               ),
+              onChanged: (value) => loginForm.contra = value,
               validator: (value) {
                 bool isValid = value != null && value.length >= 6;
 
@@ -90,11 +99,27 @@ class _LoginForm extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 child: Text(
-                  'Entrar'.toUpperCase(),
+                  loginForm.isLoading
+                      ? 'Espere'.toUpperCase()
+                      : 'Entrar'.toUpperCase(),
                   style: TextStyle(color: Colors.white),
                 ),
               ),
-              onPressed: () {},
+              onPressed: loginForm.isLoading
+                  ? null
+                  : () async {
+                      FocusScope.of(context).unfocus();
+
+                      if (!loginForm.isValidForm()) return;
+
+                      loginForm.isLoading = true;
+
+                      await Future.delayed(Duration(seconds: 2));
+
+                      loginForm.isLoading = false;
+
+                      Navigator.pushReplacementNamed(context, 'home');
+                    },
             ),
           ],
         ),
