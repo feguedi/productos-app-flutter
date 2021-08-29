@@ -12,16 +12,21 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final productsService = Provider.of<ProductsService>(context);
 
+    if (productsService.isLoading) return LoadingView();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Productos'),
       ),
       body: ListView.builder(
-        itemCount: 10,
+        itemCount: productsService.productos.length,
         itemBuilder: (BuildContext context, int index) {
           return GestureDetector(
-              onTap: () => Navigator.pushNamed(context, ProductView.routeName),
-              child: ProductCard());
+            onTap: () => Navigator.pushNamed(context, ProductView.routeName),
+            child: ProductCard(
+              producto: productsService.productos[index],
+            ),
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
