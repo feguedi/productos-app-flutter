@@ -10,13 +10,23 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Productos',
-      initialRoute: LoginView.routName,
+      initialRoute: LoginView.routeName,
       routes: {
-        LoginView.routName: (_) => LoginView(),
-        HomeView.routName: (_) => HomeView(),
+        LoginView.routeName: (_) => LoginView(),
+        HomeView.routeName: (_) => HomeView(),
       },
-      theme:
-          ThemeData.light().copyWith(scaffoldBackgroundColor: Colors.grey[100]),
+      theme: ThemeData.light().copyWith(
+        scaffoldBackgroundColor: Colors.grey[100],
+        appBarTheme: AppBarTheme(
+          elevation: 0,
+          color: Colors.indigo,
+          centerTitle: true,
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: Colors.indigo,
+          elevation: 0,
+        ),
+      ),
     );
   }
 }

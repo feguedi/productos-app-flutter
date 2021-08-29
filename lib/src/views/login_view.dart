@@ -6,7 +6,7 @@ import 'package:productos_app/src/providers/providers.dart';
 import 'package:productos_app/src/widgets/widgets.dart';
 
 class LoginView extends StatelessWidget {
-  static final String routName = 'login';
+  static final String routeName = 'login';
 
   @override
   Widget build(BuildContext context) {
