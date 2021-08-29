@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'package:productos_app/src/services/services.dart';
 import 'package:productos_app/src/views/views.dart';
 
-void main() => runApp(MyApp());
+class AppState extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => ProductsService(),
+        )
+      ],
+      child: MyApp(),
+    );
+  }
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -10,9 +24,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Productos',
-      initialRoute: LoginView.routeName,
+      initialRoute: HomeView.routeName,
       routes: {
         LoginView.routeName: (_) => LoginView(),
+        ProductView.routeName: (_) => ProductView(),
         HomeView.routeName: (_) => HomeView(),
       },
       theme: ThemeData.light().copyWith(
@@ -30,3 +45,5 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+void main() => runApp(AppState());

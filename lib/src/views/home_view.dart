@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'package:productos_app/src/services/services.dart';
+import 'package:productos_app/src/views/views.dart';
 import 'package:productos_app/src/widgets/widgets.dart';
 
 class HomeView extends StatelessWidget {
@@ -7,6 +10,8 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final productsService = Provider.of<ProductsService>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Productos'),
@@ -14,7 +19,9 @@ class HomeView extends StatelessWidget {
       body: ListView.builder(
         itemCount: 10,
         itemBuilder: (BuildContext context, int index) {
-          return ProductCard();
+          return GestureDetector(
+              onTap: () => Navigator.pushNamed(context, ProductView.routeName),
+              child: ProductCard());
         },
       ),
       floatingActionButton: FloatingActionButton(
