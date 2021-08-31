@@ -8,6 +8,7 @@ import 'package:productos_app/src/models/models.dart';
 class ProductsService extends ChangeNotifier {
   final String _baseURL = '192.168.1.81:8080';
   final List productos = [];
+  late Producto productoSeleccionado;
   bool isLoading = true;
 
   ProductsService() {

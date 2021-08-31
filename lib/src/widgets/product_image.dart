@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class ProductImage extends StatelessWidget {
   final double height;
   final double width;
+  final String? url;
 
-  const ProductImage(this.height, this.width);
+  const ProductImage(this.url, this.height, this.width);
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +21,16 @@ class ProductImage extends StatelessWidget {
               topLeft: Radius.circular(25),
               topRight: Radius.circular(25),
             ),
-            child: FadeInImage(
-              image: NetworkImage('https://via.placeholder.com/400x400/green'),
-              placeholder: AssetImage('assets/jar-loading.gif'),
-              fit: BoxFit.cover,
-            ),
+            child: this.url == null
+                ? Image(
+                    image: AssetImage('assets/no-image.png'),
+                    fit: BoxFit.cover,
+                  )
+                : FadeInImage(
+                    image: NetworkImage(this.url!),
+                    placeholder: AssetImage('assets/jar-loading.gif'),
+                    fit: BoxFit.cover,
+                  ),
           ),
         ),
         _fondo(this.height, this.width),

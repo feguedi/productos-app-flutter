@@ -22,7 +22,11 @@ class HomeView extends StatelessWidget {
         itemCount: productsService.productos.length,
         itemBuilder: (BuildContext context, int index) {
           return GestureDetector(
-            onTap: () => Navigator.pushNamed(context, ProductView.routeName),
+            onTap: () {
+              productsService.productoSeleccionado =
+                  productsService.productos[index].copy();
+              Navigator.pushNamed(context, ProductView.routeName);
+            },
             child: ProductCard(
               producto: productsService.productos[index],
             ),

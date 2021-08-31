@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:productos_app/src/colors/colors.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import 'package:productos_app/src/colors/colors.dart';
+import 'package:productos_app/src/providers/providers.dart';
+import 'package:productos_app/src/services/services.dart';
 import 'package:productos_app/src/widgets/widgets.dart';
 
 class ProductView extends StatelessWidget {
@@ -8,10 +12,29 @@ class ProductView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final productService = Provider.of<ProductsService>(context);
     final size = MediaQuery.of(context).size;
 
+    return ChangeNotifierProvider(
+      create: (_) => ProductoFormProvider(productService.productoSeleccionado),
+      child: _ProductViewBody(productService: productService, size: size),
+    );
+  }
+}
+
+class _ProductViewBody extends StatelessWidget {
+  const _ProductViewBody({
+    Key? key,
+    required this.productService,
+    required this.size,
+  }) : super(key: key);
+
+  final ProductsService productService;
+  final Size size;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.save_outlined),
         onPressed: () {
@@ -23,11 +46,16 @@ class ProductView extends StatelessWidget {
         left: true,
         right: true,
         child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.manual,
           child: Column(
             children: [
               Stack(
                 children: [
-                  ProductImage(size.height, size.width),
+                  ProductImage(
+                    productService.productoSeleccionado.imagen,
+                    size.height,
+                    size.width,
+                  ),
                   Positioned(
                     top: 20,
                     left: 20,
@@ -73,6 +101,9 @@ class _ProductForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final productoForm = Provider.of<ProductoFormProvider>(context);
+    final producto = productoForm.producto;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10),
       child: Container(
@@ -87,6 +118,13 @@ class _ProductForm extends StatelessWidget {
                   // color: Colors.red,
                   margin: EdgeInsets.only(bottom: 25),
                   child: TextFormField(
+                    initialValue: producto.nombre,
+                    onChanged: (value) => producto.nombre = value,
+                    validator: (value) {
+                      if (value == null || value.length < 1) {
+                        return 'El nombre es obligatorio';
+                      }
+                    },
                     decoration: InputDecorations.authInputDecoration(
                       hintText: 'Nombre del producto',
                       labelText: 'Nombre:',
@@ -97,6 +135,23 @@ class _ProductForm extends StatelessWidget {
                   // color: Colors.red,
                   margin: EdgeInsets.only(bottom: 25),
                   child: TextFormField(
+                    initialValue: producto.precio.toString(),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^(\d+)?\.?\d{0,2}')),
+                    ],
+                    onChanged: (value) {
+                      if (double.tryParse(value) == null) {
+                        producto.precio = 0;
+                      } else {
+                        producto.precio = double.parse(value);
+                      }
+                    },
+                    validator: (value) {
+                      if (value == null || value.length < 1) {
+                        return 'El precio es obligatorio';
+                      }
+                    },
                     keyboardType: TextInputType.number,
                     decoration: InputDecorations.authInputDecoration(
                       hintText: '\$150',
@@ -108,12 +163,11 @@ class _ProductForm extends StatelessWidget {
                   // color: Colors.red,
                   // margin: EdgeInsets.only(bottom: 25),
                   child: SwitchListTile.adaptive(
-                      title: Text('Disponible'),
-                      activeColor: Colors.indigo,
-                      value: true,
-                      onChanged: (value) {
-                        // TODO: pendiente
-                      }),
+                    title: Text('Disponible'),
+                    activeColor: Colors.indigo,
+                    value: producto.disponible,
+                    onChanged: productoForm.updateAvailability,
+                  ),
                 )
               ],
             ),

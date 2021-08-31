@@ -57,4 +57,12 @@ class Producto {
         'precio': precio,
         'imagen': imagen,
       };
+
+  Producto copy() => Producto(
+        id: this.id,
+        nombre: this.nombre,
+        precio: this.precio,
+        imagen: this.imagen,
+        disponible: this.disponible,
+      );
 }
