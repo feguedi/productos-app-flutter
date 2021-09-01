@@ -39,12 +39,17 @@ class _ProductViewBody extends StatelessWidget {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.save_outlined),
-        onPressed: () async {
-          if (!productoForm.isValidForm()) return;
+        child: productService.isSaving
+            ? CircularProgressIndicator(color: Colors.white)
+            : Icon(Icons.save_outlined),
+        onPressed: productService.isSaving
+            ? null
+            : () async {
+                if (!productoForm.isValidForm()) return;
 
-          await productService.guardarOCrearProducto(productoForm.producto);
-        },
+                await productService
+                    .guardarOCrearProducto(productoForm.producto);
+              },
       ),
       body: SafeArea(
         top: true,
@@ -81,7 +86,7 @@ class _ProductViewBody extends StatelessWidget {
                         final picker = new ImagePicker();
                         final XFile? pickedFile = await picker.pickImage(
                           source: ImageSource.camera,
-                          imageQuality: 60,
+                          imageQuality: 40,
                         );
 
                         if (pickedFile == null) {
@@ -134,7 +139,6 @@ class _ProductForm extends StatelessWidget {
             child: Column(
               children: [
                 Container(
-                  // color: Colors.red,
                   margin: EdgeInsets.only(bottom: 25),
                   child: TextFormField(
                     initialValue: producto.nombre,
@@ -151,7 +155,6 @@ class _ProductForm extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  // color: Colors.red,
                   margin: EdgeInsets.only(bottom: 25),
                   child: TextFormField(
                     initialValue: producto.precio.toString(),
@@ -179,7 +182,6 @@ class _ProductForm extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  // color: Colors.red,
                   // margin: EdgeInsets.only(bottom: 25),
                   child: SwitchListTile.adaptive(
                     title: Text('Disponible'),

@@ -29,7 +29,11 @@ class ProductsService extends ChangeNotifier {
     final tmpProductos = Productos.fromMap(responseMap);
 
     tmpProductos.productos.forEach((producto) {
-      productos.add(producto);
+      final index =
+          productos.indexWhere((element) => element.id == producto.id);
+      if (index < 0) {
+        productos.add(producto);
+      }
     });
 
     this.isLoading = false;
@@ -58,9 +62,12 @@ class ProductsService extends ChangeNotifier {
     } else {
       // INFO: actualizando
       print('Actualizando producto ${producto.nombre}');
-      await this.actualizarProducto(producto);
+      final mensaje = await this.actualizarProducto(producto);
+
+      print(mensaje);
     }
 
+    await _loadProductos();
     isSaving = false;
     notifyListeners();
   }
@@ -73,31 +80,20 @@ class ProductsService extends ChangeNotifier {
       ..fields['nombre'] = producto.nombre
       ..fields['precio'] = producto.precio.toString()
       ..fields['disponible'] = producto.disponible.toString();
+
     if (nuevaImagen != null) {
       request.files
           .add(await http.MultipartFile.fromPath('imagen', nuevaImagen!.path));
     }
-    // if (producto.imagen != null) request.files.add(await http.MultipartFile.fromPath(field, 'filePath');
-    //   method:
-    //   url,
-    //   body: producto.toJson(),
-    //   headers: {
-    //     'content-type': producto.imagen == null
-    //         ? 'application/json'
-    //         : 'multipart/form-data;boundary='
-    //   },
-    // );
 
     final streamResponse = await request.send();
 
-    // final decodedData = ProductosResponse.fromJson(response.toString());
     final response = await http.Response.fromStream(streamResponse);
     final decodedData = ProductosResponse.fromJson(response.body.toString());
-    print('decodedData: ${decodedData.message}');
+
+    this.nuevaImagen = null;
     this.isSaving = false;
     notifyListeners();
-
-    await _loadProductos();
 
     return decodedData.message;
   }
@@ -106,7 +102,6 @@ class ProductsService extends ChangeNotifier {
     this.isSaving = true;
     notifyListeners();
     final endpoint = 'api/producto/${producto.id}';
-    print('endpoint: $endpoint');
     final url = Uri.http(_baseURL, endpoint);
     final request = http.MultipartRequest('PUT', url)
       ..fields['nombre'] = producto.nombre
@@ -120,18 +115,16 @@ class ProductsService extends ChangeNotifier {
 
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
-    print('response: ${response.body.toString()}');
-    this.isSaving = false;
-
-    if (response.statusCode < 400) {
-      notifyListeners();
-    }
 
     final decodedData = ProductosResponse.fromJson(response.body.toString());
-    print('decodedData: ${decodedData.message}');
 
     final index = productos.indexWhere((element) => element.id == producto.id!);
     this.productos[index] = await obtenerProducto(producto.id!);
+
+    this.nuevaImagen = null;
+
+    this.isSaving = false;
+    notifyListeners();
 
     return decodedData.message;
   }

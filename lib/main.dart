@@ -39,7 +39,6 @@ class MyApp extends StatelessWidget {
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           backgroundColor: Colors.indigo,
-          elevation: 0,
         ),
       ),
     );

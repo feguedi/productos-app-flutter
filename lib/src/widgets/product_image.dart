@@ -52,7 +52,7 @@ class ProductImage extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.black26,
+                Colors.black45,
                 Colors.transparent,
               ],
               end: Alignment.bottomCenter,
