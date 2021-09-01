@@ -1,3 +1,5 @@
+// https://roytuts.com/boundary-in-multipart-form-data
+import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -6,8 +8,9 @@ import 'package:http/http.dart' as http;
 import 'package:productos_app/src/models/models.dart';
 
 class ProductsService extends ChangeNotifier {
+  File? nuevaImagen;
   final String _baseURL = '192.168.1.81:8080';
-  final List productos = [];
+  final List<Producto> productos = [];
   late Producto productoSeleccionado;
   bool isLoading = true;
   bool isSaving = false;
@@ -49,6 +52,9 @@ class ProductsService extends ChangeNotifier {
     if (producto.id == null) {
       // INFO: creando
       print('Creando producto');
+      final mensaje = await crearProducto(producto);
+
+      print(mensaje);
     } else {
       // INFO: actualizando
       print('Actualizando producto ${producto.nombre}');
@@ -57,6 +63,35 @@ class ProductsService extends ChangeNotifier {
 
     isSaving = false;
     notifyListeners();
+  }
+
+  Future<String> crearProducto(Producto producto) async {
+    final url = Uri.http(_baseURL, 'api/producto');
+    final request = http.MultipartRequest('POST', url)
+      ..fields['nombre'] = producto.nombre
+      ..fields['precio'] = producto.precio.toString()
+      ..fields['disponible'] = producto.disponible.toString();
+    // if (producto.imagen != null) request.files.add(await http.MultipartFile.fromPath(field, 'filePath');
+    //   method:
+    //   url,
+    //   body: producto.toJson(),
+    //   headers: {
+    //     'content-type': producto.imagen == null
+    //         ? 'application/json'
+    //         : 'multipart/form-data;boundary='
+    //   },
+    // );
+
+    final response = await request.send();
+
+    // final decodedData = ProductosResponse.fromJson(response.toString());
+    final decodedData = json.decode(response.toString());
+    print('decodedData: $decodedData');
+
+    await _loadProductos();
+
+    // return decodedData.message;
+    return decodedData;
   }
 
   Future<String> actualizarProducto(Producto producto) async {
@@ -71,9 +106,15 @@ class ProductsService extends ChangeNotifier {
 
     final decodedData = ProductosResponse.fromJson(response.body);
 
-    final index = productos.indexWhere((element) => element.id == producto.id);
-    this.productos[index] = await obtenerProducto(producto.id);
+    final index = productos.indexWhere((element) => element.id == producto.id!);
+    this.productos[index] = await obtenerProducto(producto.id!);
 
     return decodedData.message;
+  }
+
+  void actualizarImagenProductoSeleccionado(String path) {
+    this.productoSeleccionado.imagen = path;
+    this.nuevaImagen = File.fromUri(Uri(path: path));
+    notifyListeners();
   }
 }

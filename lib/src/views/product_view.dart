@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:productos_app/src/colors/colors.dart';
 import 'package:productos_app/src/providers/providers.dart';
@@ -40,7 +41,6 @@ class _ProductViewBody extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.save_outlined),
         onPressed: () async {
-          // TODO: guardar producto
           if (!productoForm.isValidForm()) return;
 
           await productService.guardarOCrearProducto(productoForm.producto);
@@ -77,8 +77,22 @@ class _ProductViewBody extends StatelessWidget {
                     top: 20,
                     right: 20,
                     child: IconButton(
-                      onPressed: () {
+                      onPressed: () async {
                         // TODO: cámara o galería
+                        final picker = new ImagePicker();
+                        final XFile? pickedFile = await picker.pickImage(
+                          source: ImageSource.camera,
+                          imageQuality: 100,
+                        );
+
+                        if (pickedFile == null) {
+                          print('No seleccionó nada');
+                          return;
+                        }
+
+                        print('Tenemos imagen ${pickedFile.path}');
+                        productService.actualizarImagenProductoSeleccionado(
+                            pickedFile.path);
                       },
                       icon: Icon(
                         Icons.camera_alt_outlined,

@@ -21,7 +21,7 @@ class ProductCard extends StatelessWidget {
             _BackgroundImage(producto.imagen),
             _ProductDetails(
               nombre: producto.nombre,
-              id: producto.id,
+              id: producto.id == null ? '--' : producto.id!,
             ),
             Positioned(
               top: 0,

@@ -26,14 +26,14 @@ class Productos {
 
 class Producto {
   bool disponible;
-  String id;
+  String? id;
   String nombre;
   String? imagen;
   double precio;
 
   Producto({
     required this.disponible,
-    required this.id,
+    this.id,
     required this.nombre,
     required this.precio,
     this.imagen,
@@ -44,7 +44,7 @@ class Producto {
 
   factory Producto.fromMap(Map<String, dynamic> json) => Producto(
         disponible: json['disponible'],
-        id: json['_id'],
+        id: json['_id'] == null ? null : json['_id'],
         nombre: json['nombre'],
         precio: json['precio'].toDouble(),
         imagen: json['imagen'] == null ? null : json['imagen'],
