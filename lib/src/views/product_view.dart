@@ -34,11 +34,16 @@ class _ProductViewBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final productoForm = Provider.of<ProductoFormProvider>(context);
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.save_outlined),
-        onPressed: () {
+        onPressed: () async {
           // TODO: guardar producto
+          if (!productoForm.isValidForm()) return;
+
+          await productService.guardarOCrearProducto(productoForm.producto);
         },
       ),
       body: SafeArea(
@@ -110,6 +115,7 @@ class _ProductForm extends StatelessWidget {
         width: double.infinity,
         decoration: _buildBoxDecoration(),
         child: Form(
+          key: productoForm.formKey,
           child: Padding(
             padding: EdgeInsets.all(25),
             child: Column(

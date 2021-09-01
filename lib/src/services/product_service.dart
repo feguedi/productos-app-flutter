@@ -10,6 +10,7 @@ class ProductsService extends ChangeNotifier {
   final List productos = [];
   late Producto productoSeleccionado;
   bool isLoading = true;
+  bool isSaving = false;
 
   ProductsService() {
     this._loadProductos();
@@ -30,5 +31,49 @@ class ProductsService extends ChangeNotifier {
 
     this.isLoading = false;
     notifyListeners();
+  }
+
+  Future<Producto> obtenerProducto(String id) async {
+    final endpoint = 'api/producto/$id';
+    final url = Uri.http(_baseURL, endpoint);
+    final response = await http.get(url);
+    final producto = Producto.fromJson(response.body);
+
+    return producto;
+  }
+
+  Future guardarOCrearProducto(Producto producto) async {
+    isSaving = true;
+    notifyListeners();
+
+    if (producto.id == null) {
+      // INFO: creando
+      print('Creando producto');
+    } else {
+      // INFO: actualizando
+      print('Actualizando producto ${producto.nombre}');
+      await this.actualizarProducto(producto);
+    }
+
+    isSaving = false;
+    notifyListeners();
+  }
+
+  Future<String> actualizarProducto(Producto producto) async {
+    final endpoint = 'api/producto/${producto.id}';
+    print('endpoint: $endpoint');
+    final url = Uri.http(_baseURL, endpoint);
+    final response = await http.put(
+      url,
+      body: producto.toJson(),
+      // headers: {'content-type': 'multipart/form-data,boundary='},
+    );
+
+    final decodedData = ProductosResponse.fromJson(response.body);
+
+    final index = productos.indexWhere((element) => element.id == producto.id);
+    this.productos[index] = await obtenerProducto(producto.id);
+
+    return decodedData.message;
   }
 }
