@@ -66,11 +66,17 @@ class ProductsService extends ChangeNotifier {
   }
 
   Future<String> crearProducto(Producto producto) async {
+    this.isSaving = true;
+    notifyListeners();
     final url = Uri.http(_baseURL, 'api/producto');
     final request = http.MultipartRequest('POST', url)
       ..fields['nombre'] = producto.nombre
       ..fields['precio'] = producto.precio.toString()
       ..fields['disponible'] = producto.disponible.toString();
+    if (nuevaImagen != null) {
+      request.files
+          .add(await http.MultipartFile.fromPath('imagen', nuevaImagen!.path));
+    }
     // if (producto.imagen != null) request.files.add(await http.MultipartFile.fromPath(field, 'filePath');
     //   method:
     //   url,
@@ -82,29 +88,47 @@ class ProductsService extends ChangeNotifier {
     //   },
     // );
 
-    final response = await request.send();
+    final streamResponse = await request.send();
 
     // final decodedData = ProductosResponse.fromJson(response.toString());
-    final decodedData = json.decode(response.toString());
-    print('decodedData: $decodedData');
+    final response = await http.Response.fromStream(streamResponse);
+    final decodedData = ProductosResponse.fromJson(response.body.toString());
+    print('decodedData: ${decodedData.message}');
+    this.isSaving = false;
+    notifyListeners();
 
     await _loadProductos();
 
-    // return decodedData.message;
-    return decodedData;
+    return decodedData.message;
   }
 
   Future<String> actualizarProducto(Producto producto) async {
+    this.isSaving = true;
+    notifyListeners();
     final endpoint = 'api/producto/${producto.id}';
     print('endpoint: $endpoint');
     final url = Uri.http(_baseURL, endpoint);
-    final response = await http.put(
-      url,
-      body: producto.toJson(),
-      // headers: {'content-type': 'multipart/form-data,boundary='},
-    );
+    final request = http.MultipartRequest('PUT', url)
+      ..fields['nombre'] = producto.nombre
+      ..fields['precio'] = producto.precio.toString()
+      ..fields['disponible'] = producto.disponible.toString();
 
-    final decodedData = ProductosResponse.fromJson(response.body);
+    if (nuevaImagen != null) {
+      request.files
+          .add(await http.MultipartFile.fromPath('imagen', nuevaImagen!.path));
+    }
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+    print('response: ${response.body.toString()}');
+    this.isSaving = false;
+
+    if (response.statusCode < 400) {
+      notifyListeners();
+    }
+
+    final decodedData = ProductosResponse.fromJson(response.body.toString());
+    print('decodedData: ${decodedData.message}');
 
     final index = productos.indexWhere((element) => element.id == producto.id!);
     this.productos[index] = await obtenerProducto(producto.id!);

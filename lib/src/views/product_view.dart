@@ -78,11 +78,10 @@ class _ProductViewBody extends StatelessWidget {
                     right: 20,
                     child: IconButton(
                       onPressed: () async {
-                        // TODO: cámara o galería
                         final picker = new ImagePicker();
                         final XFile? pickedFile = await picker.pickImage(
                           source: ImageSource.camera,
-                          imageQuality: 100,
+                          imageQuality: 60,
                         );
 
                         if (pickedFile == null) {
