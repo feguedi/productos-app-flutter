@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:productos_app/src/services/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:productos_app/src/colors/colors.dart';
 import 'package:productos_app/src/providers/providers.dart';
 import 'package:productos_app/src/widgets/widgets.dart';
 
-class LoginView extends StatelessWidget {
-  static final String routeName = 'login';
+class RegistroView extends StatelessWidget {
+  static final String routeName = 'registro';
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +21,12 @@ class LoginView extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    'Ingreso',
+                    'Registro',
                     style: Theme.of(context).textTheme.headline4,
                   ),
                   ChangeNotifierProvider(
                     create: (_) => LoginFormProvider(),
-                    child: _LoginForm(),
+                    child: _RegistroForm(),
                   ),
                 ],
               ),
@@ -33,10 +34,10 @@ class LoginView extends StatelessWidget {
             SizedBox(height: 20),
             TextButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, 'registro');
+                Navigator.pushReplacementNamed(context, 'login');
               },
               child: Text(
-                'Crear cuenta nueva',
+                'Ingresar con tu cuenta',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -51,7 +52,7 @@ class LoginView extends StatelessWidget {
   }
 }
 
-class _LoginForm extends StatelessWidget {
+class _RegistroForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loginForm = Provider.of<LoginFormProvider>(context);
@@ -110,7 +111,7 @@ class _LoginForm extends StatelessWidget {
                 child: Text(
                   loginForm.isLoading
                       ? 'Espere'.toUpperCase()
-                      : 'Entrar'.toUpperCase(),
+                      : 'Registrarme'.toUpperCase(),
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -118,16 +119,21 @@ class _LoginForm extends StatelessWidget {
                   ? null
                   : () async {
                       FocusScope.of(context).unfocus();
+                      final authService =
+                          Provider.of<AuthService>(context, listen: false);
 
                       if (!loginForm.isValidForm()) return;
 
                       loginForm.isLoading = true;
 
-                      await Future.delayed(Duration(seconds: 2));
+                      final Map<String, dynamic> response = await authService
+                          .crearUsuario(loginForm.correo, loginForm.contra);
 
                       loginForm.isLoading = false;
 
-                      Navigator.pushReplacementNamed(context, 'home');
+                      if (response['ok']) {
+                        Navigator.pushReplacementNamed(context, 'home');
+                      }
                     },
             ),
           ],

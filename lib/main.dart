@@ -10,6 +10,9 @@ class AppState extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
+          create: (_) => AuthService(),
+        ),
+        ChangeNotifierProvider(
           create: (_) => ProductsService(),
         )
       ],
@@ -24,9 +27,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Productos',
-      initialRoute: HomeView.routeName,
+      initialRoute: LoginView.routeName,
       routes: {
         LoginView.routeName: (_) => LoginView(),
+        RegistroView.routeName: (_) => RegistroView(),
         ProductView.routeName: (_) => ProductView(),
         HomeView.routeName: (_) => HomeView(),
       },
@@ -39,6 +43,14 @@ class MyApp extends StatelessWidget {
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           backgroundColor: Colors.indigo,
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: ButtonStyle(
+              overlayColor:
+                  MaterialStateProperty.all(Colors.indigo.withOpacity(0.5)),
+              shape: MaterialStateProperty.all(StadiumBorder()),
+              textStyle:
+                  MaterialStateProperty.all(TextStyle(color: Colors.indigo))),
         ),
       ),
     );
