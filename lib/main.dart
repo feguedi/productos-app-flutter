@@ -27,8 +27,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Productos',
-      initialRoute: LoginView.routeName,
+      initialRoute: CheckAuthView.routeName,
       routes: {
+        CheckAuthView.routeName: (_) => CheckAuthView(),
         LoginView.routeName: (_) => LoginView(),
         RegistroView.routeName: (_) => RegistroView(),
         ProductView.routeName: (_) => ProductView(),

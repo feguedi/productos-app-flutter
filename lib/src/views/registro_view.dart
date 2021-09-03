@@ -25,7 +25,7 @@ class RegistroView extends StatelessWidget {
                     style: Theme.of(context).textTheme.headline4,
                   ),
                   ChangeNotifierProvider(
-                    create: (_) => LoginFormProvider(),
+                    create: (_) => AuthFormProvider(),
                     child: _RegistroForm(),
                   ),
                 ],
@@ -55,12 +55,12 @@ class RegistroView extends StatelessWidget {
 class _RegistroForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final loginForm = Provider.of<LoginFormProvider>(context);
+    final authForm = Provider.of<AuthFormProvider>(context);
 
     return Container(
       child: Form(
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        key: loginForm.formKey,
+        key: authForm.formKey,
         child: Column(
           children: [
             TextFormField(
@@ -71,7 +71,7 @@ class _RegistroForm extends StatelessWidget {
                 labelText: 'Correo electrónico',
                 prefixIcon: Icons.alternate_email_sharp,
               ),
-              onChanged: (value) => loginForm.correo = value,
+              onChanged: (value) => authForm.correo = value,
               validator: (String? value) {
                 String pattern =
                     r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
@@ -91,7 +91,7 @@ class _RegistroForm extends StatelessWidget {
                 labelText: 'Contraseña',
                 prefixIcon: Icons.password,
               ),
-              onChanged: (value) => loginForm.contra = value,
+              onChanged: (value) => authForm.contra = value,
               validator: (value) {
                 bool isValid = value != null && value.length >= 6;
 
@@ -109,30 +109,33 @@ class _RegistroForm extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 child: Text(
-                  loginForm.isLoading
+                  authForm.isLoading
                       ? 'Espere'.toUpperCase()
                       : 'Registrarme'.toUpperCase(),
                   style: TextStyle(color: Colors.white),
                 ),
               ),
-              onPressed: loginForm.isLoading
+              onPressed: authForm.isLoading
                   ? null
                   : () async {
                       FocusScope.of(context).unfocus();
                       final authService =
                           Provider.of<AuthService>(context, listen: false);
 
-                      if (!loginForm.isValidForm()) return;
+                      if (!authForm.isValidForm()) return;
 
-                      loginForm.isLoading = true;
+                      authForm.isLoading = true;
 
-                      final Map<String, dynamic> response = await authService
-                          .crearUsuario(loginForm.correo, loginForm.contra);
+                      final String? response = await authService.crearUsuario(
+                          authForm.correo, authForm.contra);
 
-                      loginForm.isLoading = false;
+                      authForm.isLoading = false;
 
-                      if (response['ok']) {
+                      if (response == null) {
                         Navigator.pushReplacementNamed(context, 'home');
+                      } else {
+                        // TODO: mostrar error
+                        print(response);
                       }
                     },
             ),
