@@ -11,7 +11,7 @@ class CheckAuthView extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: false);
     final size = MediaQuery.of(context).size;
-    final tipoImagen = 'monito';
+    final tipoImagen = 'monito'; // totoro o monito
     final imagen = Image(
       image: AssetImage('assets/$tipoImagen.gif'),
       width: size.width < 720 ? size.width * 0.8 : 720,
@@ -40,9 +40,18 @@ class CheckAuthView extends StatelessWidget {
                           transitionDuration: Duration(seconds: 4),
                         ));
                   });
+                } else {
+                  Future.microtask(() {
+                    Navigator.pushReplacement(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (_, __, ___) => HomeView(),
+                          transitionDuration: Duration(seconds: 4),
+                        ));
+                  });
                 }
 
-                return imagen;
+                return Container();
               },
             ),
           ),

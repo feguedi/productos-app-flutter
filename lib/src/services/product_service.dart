@@ -3,14 +3,17 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:productos_app/src/models/models.dart';
+import 'package:productos_app/src/services/notificaciones_service.dart';
 
 class ProductsService extends ChangeNotifier {
   File? nuevaImagen;
   // final String _baseURL = '192.168.1.81:8080';
   final String _baseURL = '192.168.1.89:8080';
+  final _storage = new FlutterSecureStorage();
   final List<Producto> productos = [];
   late Producto productoSeleccionado;
   bool isLoading = true;
@@ -23,19 +26,31 @@ class ProductsService extends ChangeNotifier {
   Future _loadProductos() async {
     this.isLoading = true;
     notifyListeners();
-    final url = Uri.http(_baseURL, 'api/productos');
-    final response = await http.get(url);
+    final String? token = await _storage.read(key: 'token');
 
-    final Map<String, dynamic> responseMap = json.decode(response.body);
-    final tmpProductos = Productos.fromMap(responseMap);
+    if (token == null || token == '') {
+      NotificacionesService.showSnackbar('No se pueden obtener los productos');
+    } else {
+      final url = Uri.http(_baseURL, 'api/productos');
+      final response =
+          await http.get(url, headers: {'authorization': 'Bearer $token'});
 
-    tmpProductos.productos.forEach((producto) {
-      final index =
-          productos.indexWhere((element) => element.id == producto.id);
-      if (index < 0) {
-        productos.add(producto);
+      final Map<String, dynamic> responseMap = json.decode(response.body);
+
+      if (response.statusCode >= 400) {
+        NotificacionesService.showSnackbar(responseMap['message']);
+      } else {
+        final tmpProductos = Productos.fromMap(responseMap);
+
+        tmpProductos.productos.forEach((producto) {
+          final index =
+              productos.indexWhere((element) => element.id == producto.id);
+          if (index < 0) {
+            productos.add(producto);
+          }
+        });
       }
-    });
+    }
 
     this.isLoading = false;
     notifyListeners();
@@ -78,6 +93,7 @@ class ProductsService extends ChangeNotifier {
     notifyListeners();
     final url = Uri.http(_baseURL, 'api/producto');
     final request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = ''
       ..fields['nombre'] = producto.nombre
       ..fields['precio'] = producto.precio.toString()
       ..fields['disponible'] = producto.disponible.toString();

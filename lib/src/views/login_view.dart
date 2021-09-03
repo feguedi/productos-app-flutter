@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:productos_app/src/colors/colors.dart';
 import 'package:productos_app/src/providers/providers.dart';
 import 'package:productos_app/src/services/services.dart';
+import 'package:productos_app/src/views/views.dart';
 import 'package:productos_app/src/widgets/widgets.dart';
 
 class LoginView extends StatelessWidget {
@@ -34,7 +35,7 @@ class LoginView extends StatelessWidget {
             SizedBox(height: 20),
             TextButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, 'registro');
+                Navigator.pushReplacementNamed(context, RegistroView.routeName);
               },
               child: Text(
                 'Crear cuenta nueva',
@@ -134,8 +135,8 @@ class _LoginForm extends StatelessWidget {
                       if (response == null) {
                         Navigator.pushReplacementNamed(context, 'home');
                       } else {
-                        // TODO: mostrar mensaje de error
                         print(response);
+                        NotificacionesService.showSnackbar(response);
                       }
                     },
             ),

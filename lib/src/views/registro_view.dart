@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:productos_app/src/colors/colors.dart';
 import 'package:productos_app/src/providers/providers.dart';
+import 'package:productos_app/src/views/views.dart';
 import 'package:productos_app/src/widgets/widgets.dart';
 
 class RegistroView extends StatelessWidget {
@@ -34,7 +35,7 @@ class RegistroView extends StatelessWidget {
             SizedBox(height: 20),
             TextButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, 'login');
+                Navigator.pushReplacementNamed(context, LoginView.routeName);
               },
               child: Text(
                 'Ingresar con tu cuenta',

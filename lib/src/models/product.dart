@@ -44,7 +44,7 @@ class Producto {
 
   factory Producto.fromMap(Map<String, dynamic> json) => Producto(
         disponible: json['disponible'],
-        id: json['_id'] == null ? null : json['_id'],
+        id: json['id'] == null ? null : json['id'],
         nombre: json['nombre'],
         precio: json['precio'].toDouble(),
         imagen: json['imagen'] == null ? null : json['imagen'],
@@ -52,7 +52,7 @@ class Producto {
 
   Map<String, dynamic> toMap() => {
         'disponible': disponible,
-        '_id': id,
+        'id': id,
         'nombre': nombre,
         'precio': precio,
         'imagen': imagen,
