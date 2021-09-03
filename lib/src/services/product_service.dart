@@ -57,9 +57,11 @@ class ProductsService extends ChangeNotifier {
   }
 
   Future<Producto> obtenerProducto(String id) async {
+    final String? token = await _storage.read(key: 'token');
     final endpoint = 'api/producto/$id';
     final url = Uri.http(_baseURL, endpoint);
-    final response = await http.get(url);
+    final response =
+        await http.get(url, headers: {'authorization': 'Bearer $token'});
     final producto = Producto.fromJson(response.body);
 
     return producto;
@@ -91,9 +93,11 @@ class ProductsService extends ChangeNotifier {
   Future<String> crearProducto(Producto producto) async {
     this.isSaving = true;
     notifyListeners();
+
+    final String? token = await _storage.read(key: 'token');
     final url = Uri.http(_baseURL, 'api/producto');
     final request = http.MultipartRequest('POST', url)
-      ..headers['Authorization'] = ''
+      ..headers['Authorization'] = 'Bearer $token'
       ..fields['nombre'] = producto.nombre
       ..fields['precio'] = producto.precio.toString()
       ..fields['disponible'] = producto.disponible.toString();
@@ -118,11 +122,14 @@ class ProductsService extends ChangeNotifier {
   Future<String> actualizarProducto(Producto producto) async {
     this.isSaving = true;
     notifyListeners();
+
+    final String? token = await _storage.read(key: 'token');
     final endpoint = 'api/producto/${producto.id}';
     final url = Uri.http(_baseURL, endpoint);
     final request = http.MultipartRequest('PUT', url)
       ..fields['nombre'] = producto.nombre
       ..fields['precio'] = producto.precio.toString()
+      ..headers['Authorization'] = 'Bearer $token'
       ..fields['disponible'] = producto.disponible.toString();
 
     if (nuevaImagen != null) {
